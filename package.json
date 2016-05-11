@@ -1,0 +1,20 @@
+{
+  "name": "snakegame",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --progress",
+    "dev": "webpack-dev-server --progress --host 0.0.0.0 --port 9000 --content-base ./app --colors --inline --hot --history-api-fallback"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "pixi.js": "^3.0.11",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1",
+    "webpack": "^1.13.0",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
