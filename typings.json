@@ -1,5 +1,6 @@
 {
   "ambientDependencies": {
+    "eventemitter3": "registry:dt/eventemitter3#1.1.1+20151208234524",
     "pixi.js": "registry:dt/pixi.js#3.0.9+20160404013751"
   }
 }
