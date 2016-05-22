@@ -1,25 +1,28 @@
 import * as PIXI from 'pixi.js'
-import {Scene} from '../scene'
+import { Scene } from '../scene'
 
 export class Background extends Scene {
   
   public stage:PIXI.Container;
-  protected animateThrottleTime:number = 30;
-  public direction:number[] = [0, 1];
+  public animateThrottleTime:number = 30;
+  public direction:number[] = [-1, 0];
   
-  constructor() {
+  constructor(showGalaxy:boolean = true) {
     super();
     this.stage = new PIXI.Container;
-    // create a texture from an image path
-    let texture = PIXI.Texture.fromImage('resources/galaxy.png');
-    let tilingSprite = new PIXI.extras.TilingSprite(
-      texture, 
-      800, 
-      600
-    );
-    tilingSprite.tilePosition.set(-300,-100);
-    this.stage.addChild(tilingSprite);
     
+    if (showGalaxy) {
+      let texture = PIXI.Texture.fromImage('resources/galaxy.png');
+      let tilingSprite = new PIXI.extras.TilingSprite(
+        texture, 
+        800, 
+        600
+      );
+      tilingSprite.alpha = 0.7;
+      tilingSprite.tilePosition.set(-600,-300);
+      tilingSprite.tileScale.set(1.5, 1.5);
+      this.stage.addChild(tilingSprite);
+    }    
     for (let i = 0; i < 5; i++) {
       let letter = '9abcd'[i];
       let color = '#000000'
@@ -29,7 +32,7 @@ export class Background extends Scene {
       let tilingSprite = new PIXI.extras.TilingSprite(
         this.generateCosmosTexture(
           50-i*10, 
-          i+2, 
+          i, 
           color, 
           2+5*i*i
         ),
@@ -69,12 +72,18 @@ export class Background extends Scene {
     context.fillStyle = color;
     for (let i = 0; i < count; i++) {
       let size = 1 + Math.floor(Math.random()*maxSize);
-      context.fillRect(
-        Math.round(Math.random()*canvas.width),
-        Math.round(Math.random()*canvas.height),
-        size,
-        size
-      )
+      context.beginPath();
+      context.arc(Math.random()*canvas.width, Math.random()*canvas.height, size, 0, 2 * Math.PI, false);
+      context.fill();
+      // context.lineWidth = 5;
+      // context.strokeStyle = '#003300';
+      // context.stroke();
+      // context.fillRect(
+      //   Math.round(Math.random()*canvas.width),
+      //   Math.round(Math.random()*canvas.height),
+      //   size,
+      //   size
+      // )
     }
     // let size = 1 + Math.floor(Math.random()*maxSize);
     // for (let i = 0; i < canvas.height; i++) {

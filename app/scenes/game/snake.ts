@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import {Scene} from '../scene'
+import { Scene } from '../scene'
 
 export class Snake extends Scene{
   
@@ -18,7 +18,7 @@ export class Snake extends Scene{
     this.stage = new PIXI.Container();
     
     window.addEventListener('keydown', this.keydownHandler);
-    PIXI.EventEmitter
+    
     let head = new SnakePart('');
     this.body.push(head);
     this.stage.addChild(head.dio);
@@ -33,22 +33,22 @@ export class Snake extends Scene{
     for (let i = 0, len = this.body.length; i < len; i++){
       let snakePart = this.body[i];
       let [kx, ky] = snakePart.direction;
-      let {x, y} = snakePart.dio.position;
+      let [x, y] = snakePart.position;
       rollbackList.push([x, y]);
       let pos:number[] = [
-        x + kx*snakePart.size,
-        y + ky*snakePart.size
+        x + kx,
+        y + ky
       ];
       if (
         (i === 0 && !this.isValidHeadPosition(pos[0], pos[1])) ||
         (i !== 0 && 
-          this.body[0].dio.position.x === pos[0] &&
-          this.body[0].dio.position.y === pos[1])) {
+          this.body[0].position[0] === pos[0] &&
+          this.body[0].position[1] === pos[1])) {
         this.stop();
         rollback = true;
         break;
       }
-      snakePart.dio.position.set(pos[0], pos[1]);
+      snakePart.position = pos;
       let nextPart = this.body[i+1];
       if (nextPart) {
         nextPart.nextDirection = snakePart.direction;
@@ -59,9 +59,11 @@ export class Snake extends Scene{
     }
     if (rollback) {
       rollbackList.forEach((pos:number[], i) => {
-        this.body[i].dio.position.set(pos[0], pos[1]);
+        this.body[i].position = pos;
       });
       this.emit('gameover');
+    } else {
+      this.emit('headmoved', this.body[0].position)
     }
   }
   
@@ -69,11 +71,9 @@ export class Snake extends Scene{
     let lastSnakePart = this.body[this.body.length - 1];
     let newSnakePart = new SnakePart('');
     let [kx, ky] = lastSnakePart.direction;
-    let {x, y} = lastSnakePart.dio.position;
-    newSnakePart.dio.position = new PIXI.Point(
-      x - kx*newSnakePart.size,
-      y - ky*newSnakePart.size
-    );
+    let [x, y] = lastSnakePart.position;
+    newSnakePart.position = [x - kx, y - ky];
+    newSnakePart.direction = lastSnakePart.direction;
     this.body.push(newSnakePart);
     this.stage.addChild(newSnakePart.dio);
   }
@@ -86,7 +86,7 @@ export class Snake extends Scene{
   }
   
   public isValidHeadPosition(x:number, y:number):boolean {
-    let inBounds = x >= 0 && y >= 0 && x < 800 && y < 600;
+    let inBounds = x >= 0 && y >= 0 && x < 20 && y < 15;
     return inBounds;
   }
   
@@ -97,6 +97,17 @@ export class Snake extends Scene{
   public destroy() {
     window.removeEventListener('keydown', this.keydownHandler);
   }
+  
+  public restart() {
+    this.body.forEach((snakePart:SnakePart) => {
+      this.stage.removeChild(snakePart.dio);
+    });
+    this.body = [];
+    let head = new SnakePart('');
+    this.body.push(head);
+    this.stage.addChild(head.dio);
+    this.stopped = false;
+  }
     
 }
 
@@ -106,16 +117,27 @@ export class SnakePart {
   public nextDirection:number[];
   public dio:PIXI.DisplayObject;
   public size:number = 40;
-  public oldPos:number[] = [0, 0];
+  private _position:number[] = [0, 0];
+  
+  get position() {
+    return this._position;
+  }
+  
+  set position(position) {
+    this._position = position;
+    this.dio.position.set(
+      position[0]*this.size, 
+      position[1]*this.size
+    );
+  }
     
-  constructor(imageUrl: string) {
+  constructor(imageUrl: string, x:number = 5, y:number = 5) {
     let graphics = new PIXI.Graphics();
     graphics.beginFill(Math.random()*0xFFFFFF);
     //graphics.lineStyle(1, 0xFF0000);
     graphics.drawRect(0, 0, this.size, this.size);
-    graphics.position = new PIXI.Point(120,120);
-    
     this.dio = graphics;
+    this.position = [x, y];
   }
     
 }

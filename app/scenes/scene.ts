@@ -3,6 +3,7 @@ import * as EventEmitter from 'eventemitter3'
 export abstract class Scene extends EventEmitter{
   
   public stage:PIXI.Container;
+  
   protected lastAnimateTime:number = 0;
   protected animateThrottleTime:number = 1000;
   public animate() {
@@ -12,7 +13,7 @@ export abstract class Scene extends EventEmitter{
       this.lastAnimateTime = now;
     }
   }
-  abstract throttledAnimate();
+  public throttledAnimate() {};
   public destroy() {};
   
 }
