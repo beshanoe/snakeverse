@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js'
+import * as Rainbow from 'rainbowvis.js'
 import { Scene } from '../scene'
+
+
 
 export class Snake extends Scene{
   
@@ -8,6 +11,8 @@ export class Snake extends Scene{
   private body:SnakePart[] = [];
   private graphics:PIXI.Graphics;
   private stopped:boolean = false;
+  private changePending = false;
+  private rainbow;
   
   protected animateThrottleTime:number = 100;
   
@@ -16,10 +21,13 @@ export class Snake extends Scene{
   constructor() {
     super();
     this.stage = new PIXI.Container();
+    this.rainbow = new Rainbow();
+    this.rainbow.setSpectrum('#E60079', '#0091E6', '#21BA25');
+    this.rainbow.setNumberRange(0, 70);
     
     window.addEventListener('keydown', this.keydownHandler);
     
-    let head = new SnakePart('');
+    let head = new SnakePart(this.rainbow.colourAt(0));
     this.body.push(head);
     this.stage.addChild(head.dio);
   }
@@ -64,12 +72,15 @@ export class Snake extends Scene{
       this.emit('gameover');
     } else {
       this.emit('headmoved', this.body[0].position)
+      this.changePending = false;
     }
   }
   
   public appendToTail() {
     let lastSnakePart = this.body[this.body.length - 1];
-    let newSnakePart = new SnakePart('');
+    let newSnakePart = new SnakePart(
+      this.rainbow.colourAt(this.body.length)
+    );
     let [kx, ky] = lastSnakePart.direction;
     let [x, y] = lastSnakePart.position;
     newSnakePart.position = [x - kx, y - ky];
@@ -79,9 +90,12 @@ export class Snake extends Scene{
   }
   
   public turn(direction:number[]) {
-    let [head, ...tail] = this.body;
-    if (head.direction.indexOf(0) + direction.indexOf(0) === 1) {
+    let [head,] = this.body;
+    if (
+      (head.direction.indexOf(0) + direction.indexOf(0) === 1) &&
+      !this.changePending) {
       head.direction = direction;
+      this.changePending = true;
     }
   }
   
@@ -103,10 +117,15 @@ export class Snake extends Scene{
       this.stage.removeChild(snakePart.dio);
     });
     this.body = [];
-    let head = new SnakePart('');
+    let head = new SnakePart(this.rainbow.colourAt(0));
     this.body.push(head);
     this.stage.addChild(head.dio);
     this.stopped = false;
+  }
+  
+  public isInSnake(position:number[]) {
+    let joined = position.join('');
+    return this.body.some(snakePart => snakePart.position.join('') === joined);
   }
     
 }
@@ -131,9 +150,9 @@ export class SnakePart {
     );
   }
     
-  constructor(imageUrl: string, x:number = 5, y:number = 5) {
+  constructor(color: string, x:number = 5, y:number = 5) {
     let graphics = new PIXI.Graphics();
-    graphics.beginFill(Math.random()*0xFFFFFF);
+    graphics.beginFill(parseInt(color, 16));
     //graphics.lineStyle(1, 0xFF0000);
     graphics.drawRect(0, 0, this.size, this.size);
     this.dio = graphics;

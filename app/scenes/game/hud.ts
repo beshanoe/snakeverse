@@ -32,12 +32,9 @@ export class Hud extends Scene {
     this.playAgainBtn = playAgainBtn;
     
     let countText = Utils.makeText('000');
-    countText.position.set(
-      800-countText.width-10,
-      0
-    );
     this.stage.addChild(countText);
     this.countText = countText;
+    this.count = 0;
   }
   
   gameover() {
@@ -49,7 +46,15 @@ export class Hud extends Scene {
   
   set count(number:number) {
     this._count = number;
-    this.countText.text = number.toString();
+    let countArr = number.toString().split('');
+    while (countArr.length < 3) {
+      countArr.unshift('0');
+    }
+    this.countText.text = countArr.join('');
+    this.countText.position.set(
+      800-this.countText.width-10,
+      0
+    );
   }
   
   get count():number {

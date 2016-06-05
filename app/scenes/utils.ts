@@ -29,14 +29,10 @@ export class Utils {
   
   static makeText(text:string):PIXI.Text {
     let style = {
-        font : 'bold italic 64px Arial',
+        font : 'bold italic 36px Arial',
         fill : '#FFFFFF',
-        stroke : '#FFFF00',
-        strokeThickness : 5,
-        dropShadow : true,
-        dropShadowColor : '#000000',
-        dropShadowAngle : Math.PI / 6,
-        dropShadowDistance : 6
+        stroke : '#00000',
+        strokeThickness : 5
     };
     let pixiText = new PIXI.Text(text,style);
     return pixiText;

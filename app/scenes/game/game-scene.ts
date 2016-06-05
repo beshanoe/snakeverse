@@ -26,7 +26,11 @@ export class GameScene extends Scene {
       40
     );
     
-    hud.on('playagain', () => snake.restart());
+    hud.on('playagain', () => {
+      hud.count = 0;
+      snake.restart();
+      bkg.restart();
+    });
     snake.on('gameover', () => {
       //this.animating.splice(this.animating.indexOf(bkg), 1);
       hud.gameover();
@@ -34,10 +38,18 @@ export class GameScene extends Scene {
     snake.on('headmoved', (position:number[]) => {
       if (position[0] === lastFood[0] && position[1] === lastFood[1]) {
         snake.appendToTail();
+        snake.appendToTail();
         food.removeFood();
+        let foodPosition:number[];
+        do {
+          foodPosition = [
+            Math.floor(Math.random()*20),
+            Math.floor(Math.random()*15)
+          ];
+        } while (snake.isInSnake(foodPosition)); 
         lastFood = food.makeFood(
-          Math.floor(Math.random()*20),
-          Math.floor(Math.random()*15),
+          foodPosition[0],
+          foodPosition[1],
           40
         );
         hud.count += 1;
